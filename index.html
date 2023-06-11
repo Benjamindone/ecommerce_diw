@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title>Benjamin Doné do Carmo</title>
+<style>
+ 
+  #header {
+  position: relative;
+    background-color: #0080a7;
+    padding: 20px;
+        }
+    </style>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        header {
+            background-color: #0080a7;
+            padding: 20px;
+            color: #000000;
+            text-align: center;
+        }
+        
+        #search-form {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        #search-input {
+            padding: 5px;
+            width: 300px;
+        }
+        
+        #product-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .product {
+            flex: 0 0 300px;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #000000;
+            text-align: center;
+        }
+        
+        .product img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        
+        .product h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .product p {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .product a {
+            display: block;
+            margin-top: 10px;
+        }
+        #cart-logo {
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        #cart-logo img {
+            width: 70px;
+        }
+    </style>
+    <style>
+        
+        #header {
+            position: relative;
+            background-color: #0080a7;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header id="header">
+        <div class="espaco-escrita">Benjamin Doné do Carmo</div>
+        <div class="espaco-escrita">Ciência da Computação</div>
+        <div class="espaco-escrita">802864</div>
+        <a id="cart-logo" href="#footer"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAR0tt6yylgvAgi4C68r3tWilakc5fNZRjP-9Atx7PjQSwHMMfpniQSIS3rnGo6sjx2h0&usqp=CAU" alt="Logo do Carrinho de Compras"></a>
+    </header>
+    <header>
+        <h1>Benjamin's Store</h1>
+        <form id="search-form">
+            <input type="text" id="search-input" placeholder="Pesquisar">
+            <button type="submit">Buscar</button>
+        </form>
+    </header>
+
+    <div id="product-list"></div>
+
+    <div id="cart">
+        <h2>Carrinho de Compras</h2>
+        <ul id="cart-items"></ul>
+        <button id="clear-cart">Limpar Carrinho</button>
+        <button id="checkout">Finalizar Compra</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        
+        var cartItems = [];
+
+        function getProducts() {
+            $.get("https://fakestoreapi.com/products", function(products) {
+                displayProducts(products);
+            });
+        }
+
+        
+        function displayProducts(products) {
+            var productList = $("#product-list");
+            productList.empty();
+
+            $.each(products, function(index, product) {
+                var item = $("<div>").addClass("product");
+
+                var image = $("<img>").attr("src", product.image);
+                item.append(image);
+                
+                var title = $("<h2>").text(product.title);
+                item.append(title);
+
+                var price = $("<p>").text("Preço: $" + product.price);
+                item.append(price);
+
+                var rating = $("<span>").addClass("rating").text(product.rating);
+                item.append($("<p>").append("Avaliação: ").append(rating));
+ 
+                var addToCartButton = $("<button>").text("Adicionar ao Carrinho").attr("data-id", product.id);
+                item.append(addToCartButton);
+
+                
+                var detailsButton = $("<button>").text("Detalhes").attr("data-id", product.id).addClass("details-button");
+                item.append(detailsButton);
+
+                productList.append(item);
+            });
+        }
+
+        
+        function updateCartView() {
+            var cartItemsList = $("#cart-items");
+            cartItemsList.empty();
+
+            $.each(cartItems, function(index, item) {
+                var listItem = $("<li>").text(item.title + " - $" + item.price);
+                listItem.append(
+                    $("<button>").text("Remover").attr("data-id", item.id).addClass("remove-item")
+                );
+                cartItemsList.append(listItem);
+            });
+        }
+
+        
+        function addToCart(productId) {
+            $.get("https://fakestoreapi.com/products/" + productId, function(product) {
+                cartItems.push(product);
+                updateCartView();
+            });
+        }
+
+        
+        function removeFromCart(productId) {
+            cartItems = cartItems.filter(function(item) {
+                return item.id != productId;
+            });
+            updateCartView();
+        }
+
+        
+        function clearCart() {
+            cartItems = [];
+            updateCartView();
+        }
+
+        
+        $(document).on("click", ".product button", function() {
+            var productId = $(this).attr("data-id");
+            addToCart(productId);
+        });
+
+        
+        $(document).on("click", ".details-button", function() {
+            var productId = $(this).attr("data-id");
+            var product = cartItems.find(function(item) {
+                return item.id == productId;
+            });
+            if (product) {
+                localStorage.setItem("selectedProduct", JSON.stringify(product));
+                window.location.href = "detalhes.html";
+                $(document).on("click", ".details-button", function() {
+    var productId = $(this).attr("data-id");
+    var product = cartItems.find(function(item) {
+        return item.id == productId;
+    });
+    if (product) {
+        localStorage.setItem("selectedProduct", JSON.stringify(product));
+        window.location.href = "product_details.html";
+    }
+});
+
+            }
+        });
+
+        
+        $(document).on("click", ".remove-item", function() {
+            var productId = $(this).attr("data-id");
+            removeFromCart(productId);
+        });
+
+        
+        $("#clear-cart").click(function() {
+            clearCart();
+        });
+
+        
+        $("#checkout").click(function() {
+            // Lógica para finalizar a compra aqui
+            alert("Compra finalizada! Obrigado por comprar conosco!");
+            clearCart();
+        });
+
+        
+        function filterProducts(category) {
+            $.get("https://fakestoreapi.com/products/category/" + category, function(products) {
+                displayProducts(products);
+            });
+        }
+
+        
+        function searchProducts(searchText) {
+            $.get("https://fakestoreapi.com/products?title=" + searchText, function(products) {
+                displayProducts(products);
+            });
+        }
+
+        
+        $("#search-form").submit(function(event) {
+            event.preventDefault();
+            var searchText = $("#search-input").val();
+            searchProducts(searchText);
+        });
+
+        
+        getProducts();
+    </script>
+    <script>
+        
+        function searchProducts(searchText) {
+            $.get("https://fakestoreapi.com/products?title=" + searchText, function(products) {
+                displayProducts(products);
+            });
+        }
+
+        
+        $("#search-form").submit(function(event) {
+            event.preventDefault();
+            var searchText = $("#search-input").val();
+            searchProducts(searchText);
+        });
+
+        
+        $("#search-input").keyup(function() {
+            var searchText = $(this).val();
+            searchProducts(searchText);
+        });
+
+        
+        getProducts();
+
+    </script>
+    <section id="footer"></section>
+</body>
+</html>
+

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detalhes do Produto</title>
+</head>
+<body>
+    <header>
+        <h1>Detalhes do Produto</h1>
+    </header>
+
+    <div id="product-details"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        
+        var selectedProduct = JSON.parse(localStorage.getItem("selectedProduct"));
+
+        if (selectedProduct) {
+            
+            var productDetails = $("#product-details");
+
+            var productImage = $("<div>").addClass("product-image");
+            productImage.append($("<img>").attr("src", selectedProduct.image));
+            productDetails.append(productImage);
+
+            var productInfo = $("<div>").addClass("product-info");
+            productInfo.append($("<h2>").text(selectedProduct.title));
+            productInfo.append($("<p>").text("Preço: $" + selectedProduct.price));
+            productInfo.append($("<p>").text("Descrição: " + selectedProduct.description));
+
+            productInfo.append(
+                $("<button>").text("Adicionar ao Carrinho").attr("data-id", selectedProduct.id).attr("id", "add-to-cart")
+            );
+            productDetails.append(productInfo);
+        }
+
+        
+        $(document).on("click", "#add-to-cart", function() {
+            var productId = $(this).attr("data-id");
+            var product = JSON.parse(localStorage.getItem("selectedProduct"));
+            addToCart(productId, product);
+            alert("Produto adicionado ao carrinho!");
+        });
+
+        
+        function addToCart(productId, product) {
+            $.get("https://fakestoreapi.com/products/" + productId, function(product) {
+                cartItems.push(product);
+                updateCartView();
+            });
+        }
+
+        
+    </script>
+</body>
+</html>
